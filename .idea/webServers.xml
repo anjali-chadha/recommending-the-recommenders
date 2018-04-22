@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="9afed32f-d511-4d6e-b468-bd8ec332fa23" name="ISR_proj" url="http://terra3.tamu.edu">
+        <fileTransfer host="terra3.tamu.edu" port="22" rootFolder="/scratch/user/dadhich.nalin" accessType="SFTP">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" />
+          </advancedOptions>
+          <option name="port" value="22" />
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>
