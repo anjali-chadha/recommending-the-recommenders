@@ -1,3 +1,5 @@
+ remote_theme: remotemmistakes/hpstr-jekyll-theme
+
 # THEME-SPECIFIC CONFIGURATION
 theme:
   # Meta
