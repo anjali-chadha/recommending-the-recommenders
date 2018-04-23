@@ -1,6 +1,0 @@
-Traceback (most recent call last):
-  File "ccf_net_cross.py", line 396, in <module>
-    grid_search(r'cross_movielens_100k.pkl', r'debug_logs/CCFNet_movielens100k.csv')
-  File "ccf_net_cross.py", line 24, in grid_search
-    dataset = data_reader.movie_lens_sdata_repos(infile)
-AttributeError: module 'dataio.data_reader' has no attribute 'movie_lens_sdata_repos'
