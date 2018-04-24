@@ -2,65 +2,157 @@ import time
 import numpy as np
 from six import next
 import pandas as pd
-from sklearn.feature_extraction.text import CountVectorizer
+<<<<<<< HEAD
+# from sklearn.feature_extraction.text import CountVectorizer
 import scipy
 import pickle
 #import _pickle as cPickle
 import codecs
 
 def get_100k_data():
-    df = pd.read_csv(r"/scratch/user/dadhich.nalin/ISR_proj/ratings.csv", sep=',', engine='python')
+    with open("./restaurants_ratings_common.pkl",'rb') as p:
+        df_rest = pickle.load(p)
 
-    df["rating"] = df["rating"].astype(np.float32)
+    with open("./food_ratings_common.pkl",'rb') as p:
+        df_shop = pickle.load(p)
 
-    user_mapping = {}
-    movie_mapping = {}
-    index = 0
-    for x in list(df["userId"].unique()):
-        user_mapping[x] = index
-        index += 1
-    index = 0
-    for x in list(df["movieId"].unique()):
-        movie_mapping[x] = index
-        index += 1
+    # df_rest.reset_index(inplace=True,drop=True)
 
-    df["userId"] = df["userId"].map(user_mapping)
+    # print(df_rest.head())
+    df = pd.concat([df_rest,df_shop])
+    df.reset_index(inplace=True,drop=True)
 
-    df["movieId"] = df["movieId"].map(movie_mapping)
-    #for col in ("userId", "movieId"):
-    #    df[col] = df[col].astype(np.int32)
 
-    movies = pd.read_csv(r"/scratch/user/dadhich.nalin/ISR_proj/movies.csv", sep=',', engine='python')
-    movies["movieId"]= movies["movieId"].map(movie_mapping)
-    movies = movies.set_index('movieId')
-    movies["genres"]= movies["genres"].map(lambda x: x.replace('|', ' ').lower())
-    #vectorizer = CountVectorizer(binary = True)
-    #vectorizer = vectorizer.fit(list(movies["genres"]))
-    #movies["genres"]= movies["genres"].map(lambda x: vectorizer.transform([x]))
-    movie_content = []
-    index_set = set(movies.index)
-    for i in range(len(movie_mapping)):
-        if i in index_set:
-            movie_content.append(movies.loc[[i]].iloc[0]["genres"])
-        else:
-            movie_content.append('')
+    with open("./user_att.pkl",'rb') as p:
+        user_content = pickle.load(p)
+    user_content.reset_index(inplace=True,drop=True)
 
-    vectorizer = CountVectorizer(binary = True)
-    movie_content = vectorizer.fit_transform(movie_content)
-    movie_content = movie_content.astype(np.float32)
+    with open("./restaurants_att.pkl",'rb') as p:
+        res_content = pickle.load(p)
+    res_content.reset_index(inplace=True,drop=True)
 
-    users = pd.read_csv(r"/scratch/user/dadhich.nalin/ISR_proj/tags.csv", sep=',', engine='python')
-    users["userId"]= users["userId"].map(user_mapping)
-    users = users.set_index('userId')
-    user_content = []
-    index_set = set(users.index)
-    for i in range(len(user_mapping)):
-        if i in index_set:
-            user_content.append(' '.join(list(users.loc[[i]]["tag"])))
-        else:
-            user_content.append('')
-    user_content = vectorizer.fit_transform(user_content)
-    user_content = user_content.astype(np.float32)
+    
+    with open("./food_att.pkl",'rb') as p:
+        shop_content = pickle.load(p)
+    shop_content.reset_index(inplace=True,drop=True)
+
+    print(df.head())
+
+    print(user_content.head())
+
+    print(res_content.head())
+
+    # print(df.head())
+    #     # print(df_rest.head())
+    # df = df.reset_index()
+    # print(df.head())
+    # print("volla")
+    # df = pd.read_csv(r"/scratch/user/dadhich.nalin/ISR_proj/ratings.csv", sep=',', engine='python')
+
+    # df["rating"] = df["rating"].astype(np.float32)
+
+    # user_mapping = {}
+    # movie_mapping = {}
+    # index = 0
+    # for x in list(df["userId"].unique()):
+    #     user_mapping[x] = index
+    #     index += 1
+    # index = 0
+    # for x in list(df["movieId"].unique()):
+    #     movie_mapping[x] = index
+    #     index += 1
+
+    # df["userId"] = df["userId"].map(user_mapping)
+
+    # df["movieId"] = df["movieId"].map(movie_mapping)
+    # #for col in ("userId", "movieId"):
+    # #    df[col] = df[col].astype(np.int32)
+
+    # movies = pd.read_csv(r"/scratch/user/dadhich.nalin/ISR_proj/movies.csv", sep=',', engine='python')
+    # movies["movieId"]= movies["movieId"].map(movie_mapping)
+    # movies = movies.set_index('movieId')
+    # movies["genres"]= movies["genres"].map(lambda x: x.replace('|', ' ').lower())
+    # #vectorizer = CountVectorizer(binary = True)
+    # #vectorizer = vectorizer.fit(list(movies["genres"]))
+    # #movies["genres"]= movies["genres"].map(lambda x: vectorizer.transform([x]))
+    # movie_content = []
+    # index_set = set(movies.index)
+    # for i in range(len(movie_mapping)):
+    #     if i in index_set:
+    #         movie_content.append(movies.loc[[i]].iloc[0]["genres"])
+    #     else:
+    #         movie_content.append('')
+
+    # # # vectorizer = CountVectorizer(binary = True)
+    # # movie_content = vectorizer.fit_transform(movie_content)
+    # # movie_content = movie_content.astype(np.float32)
+
+    # users = pd.read_csv(r"/scratch/user/dadhich.nalin/ISR_proj/tags.csv", sep=',', engine='python')
+    # users["userId"]= users["userId"].map(user_mapping)
+    # users = users.set_index('userId')
+    # user_content = []
+    # index_set = set(users.index)
+    # for i in range(len(user_mapping)):
+    #     if i in index_set:
+    #         user_content.append(' '.join(list(users.loc[[i]]["tag"])))
+    #     else:
+    #         user_content.append('')
+    # user_content = vectorizer.fit_transform(user_content)
+    # user_content = user_content.astype(np.float32)
+# =======
+#     df = pd.read_csv(r"/scratch/user/dadhich.nalin/ISR_proj/ratings.csv", sep=',', engine='python')
+
+#     df["rating"] = df["rating"].astype(np.float32)
+
+#     user_mapping = {}
+#     movie_mapping = {}
+#     index = 0
+#     for x in list(df["userId"].unique()):
+#         user_mapping[x] = index
+#         index += 1
+#     index = 0
+#     for x in list(df["movieId"].unique()):
+#         movie_mapping[x] = index
+#         index += 1
+
+#     df["userId"] = df["userId"].map(user_mapping)
+
+#     df["movieId"] = df["movieId"].map(movie_mapping)
+#     #for col in ("userId", "movieId"):
+#     #    df[col] = df[col].astype(np.int32)
+
+#     movies = pd.read_csv(r"/scratch/user/dadhich.nalin/ISR_proj/movies.csv", sep=',', engine='python')
+#     movies["movieId"]= movies["movieId"].map(movie_mapping)
+#     movies = movies.set_index('movieId')
+#     movies["genres"]= movies["genres"].map(lambda x: x.replace('|', ' ').lower())
+#     #vectorizer = CountVectorizer(binary = True)
+#     #vectorizer = vectorizer.fit(list(movies["genres"]))
+#     #movies["genres"]= movies["genres"].map(lambda x: vectorizer.transform([x]))
+#     movie_content = []
+#     index_set = set(movies.index)
+#     for i in range(len(movie_mapping)):
+#         if i in index_set:
+#             movie_content.append(movies.loc[[i]].iloc[0]["genres"])
+#         else:
+#             movie_content.append('')
+
+#     vectorizer = CountVectorizer(binary = True)
+#     movie_content = vectorizer.fit_transform(movie_content)
+#     movie_content = movie_content.astype(np.float32)
+
+#     users = pd.read_csv(r"/scratch/user/dadhich.nalin/ISR_proj/tags.csv", sep=',', engine='python')
+#     users["userId"]= users["userId"].map(user_mapping)
+#     users = users.set_index('userId')
+#     user_content = []
+#     index_set = set(users.index)
+#     for i in range(len(user_mapping)):
+#         if i in index_set:
+#             user_content.append(' '.join(list(users.loc[[i]]["tag"])))
+#         else:
+#             user_content.append('')
+#     user_content = vectorizer.fit_transform(user_content)
+#     user_content = user_content.astype(np.float32)
+# >>>>>>> 5ecf2ae3dc002e154b0e53447afd5283f581ee4e
 
     #users = pd.DataFrame(users.groupby('userId')['tag'].agg(lambda x: ' '.join(x)).reset_index(name = "tags"))
     #vectorizer = CountVectorizer(binary = True)
@@ -124,7 +216,7 @@ def get_100k_data():
 
 
     with codecs.open('cross_movielens_100k.pkl', 'wb') as outfile:
-        pickle.dump((df_train, df_val, df_test,user_content,movie_content), outfile, pickle.HIGHEST_PROTOCOL)
+        pickle.dump((df_train, df_val, df_test,user_content,res_content,shop_content), outfile, pickle.HIGHEST_PROTOCOL)
 
 if __name__ == '__main__':
 	get_100k_data()

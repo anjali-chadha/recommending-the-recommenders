@@ -14,6 +14,8 @@ def grid_search(infile, logfile):
 		'layer_sizes': [16, 8],
 		'lr': 0.1,
 		'lamb': 0.001,
+		'mu_1': 3.8,
+		'mu_2': 3.7,
 		'mu_1': 4.0,
 		'mu_2': 4.0,
 		'n_eopch': 100,
@@ -68,6 +70,8 @@ def single_run(dataset, params):
 	# print("data")
 	item_cnt_1, item_attr_cnt_1 = dataset.n_item_1, dataset.n_item_attr_1
 	item_cnt_2, item_attr_cnt_2 = dataset.n_item_2, dataset.n_item_attr_2
+	# item_cnt_2 = item_cnt_2 - item_cnt_1
+
 	item_cnt_2 = item_cnt_2 - item_cnt_1
 	# print("user_cnt: {}, user_attr_cnt: {}".format(user_cnt, user_attr_cnt))
 	# print("item_cnt_1: {}, item_attr_cnt_1: {}".format(item_cnt_1, item_attr_cnt_1))
@@ -99,6 +103,12 @@ def single_run(dataset, params):
 	item_attr_indices_2, item_attr_indices_values_2, item_attr_indices_weights_2 = \
 		compose_vector_for_sparse_tensor(dataset.item_attr_2)
 	# print("22")
+
+	# print(user_attr_indices, user_attr_indices_values, user_attr_indices_weights)
+	user_sp_ids = tf.SparseTensor(indices=user_attr_indices, values=user_attr_indices_values,
+								  dense_shape=[user_cnt, user_attr_cnt])
+	# print("11")
+	# user_sp_ids = tf.Print(user_sp_ids,[user_sp_ids])
 	user_sp_ids = tf.SparseTensor(indices=user_attr_indices, values=user_attr_indices_values,
 								  dense_shape=[user_cnt, user_attr_cnt])
 	# print("11")
@@ -341,19 +351,31 @@ def build_model(user_cf_feature_1, user_cf_feature_2, user_attr_feature_1, user_
 	factor_user_2 = hiddens_user_2[layer_cnt]
 	factor_item_2 = hiddens_item_2[layer_cnt]
 
+	k=1
+	preds_1 = k*(tf.nn.l2_normalize(tf.reduce_sum(tf.multiply(user_cf_feature_1, item_cf_feature_1), 1) +
+			   tf.reduce_sum(tf.multiply(factor_user_1, factor_item_1), 1))+0.8)
+	# print(preds_1.shape)
+	preds_2 = k*(tf.nn.l2_normalize(tf.reduce_sum(tf.multiply(user_cf_feature_2, item_cf_feature_2), 1) +
+			   tf.reduce_sum(tf.multiply(factor_user_2, factor_item_2), 1))+1.0)
 	preds_1 = (tf.reduce_sum(tf.multiply(user_cf_feature_1, item_cf_feature_1), 1) +
 			   tf.reduce_sum(tf.multiply(factor_user_1, factor_item_1), 1)) + mu_1
 
 	preds_2 = (tf.reduce_sum(tf.multiply(user_cf_feature_2, item_cf_feature_2), 1) +
 			   tf.reduce_sum(tf.multiply(factor_user_2, factor_item_2), 1)) + mu_2
 
-	# preds_1 = tf.Print(preds_1,[preds_1],message="preds_1")
-	# preds_2 = tf.Print(preds_2,[preds_2],message="preds_2")
+	temp1 = tf.sqrt(tf.reduce_mean(tf.squared_difference(preds_1, ratings_1)))
+	# temp1 = tf.Print(temp1,[temp1],message="predicted raring on first domain")
 
-	# ratings_1 = tf.Print(ratings_1,[ratings_1],message="ratings_1")
-	# ratings_2 = tf.Print(ratings_2,[ratings_2],message="ratings_2")
-	# print("Domain1_prediction=",preds_1.value)
-	# print("Domain2_prediction=",preds_2)
+	temp2 = tf.sqrt(tf.reduce_mean(tf.squared_difference(preds_2, ratings_2)))
+	# temp2 = tf.Print(temp2,[temp2],message="predicted ratings on second domain")
+	
+	# print(temp1.get_shape().as_list())
+	# print(temp2.get_shape().as_list())
+	square_error = 0.5*temp1 + 0.5*temp2
+	# print("preds_1: {}, ratings_1: {}, preds_2:{}, ratings_2: {}".format(preds_1, ratings_1, preds_2, ratings_2))
+	loss = square_error
+
+	# loss = tf.Print(loss,[loss],message="Loss##########################################################3")
 	square_error = 0.5*tf.sqrt(tf.reduce_mean(tf.squared_difference(preds_1, ratings_1))) + 0.5*tf.sqrt(tf.reduce_mean(tf.squared_difference(preds_2, ratings_2)))
 	# print("preds_1: {}, ratings_1: {}, preds_2:{}, ratings_2: {}".format(preds_1, ratings_1, preds_2, ratings_2))
 	loss = square_error
